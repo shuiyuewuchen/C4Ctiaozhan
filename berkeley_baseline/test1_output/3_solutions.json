@@ -9,8 +9,13 @@
     ],
     "answer": "函数图像在可导点处切线唯一",
     "answer_latex": "函数图像在可导点处切线唯一",
-    "solver": "llm_concept_template",
-    "sub_solutions": []
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "Q2",
@@ -22,8 +27,13 @@
     ],
     "answer": "存在，例如 $|x|$ 在 $x=0$",
     "answer_latex": "存在，例如 |x| 在 x=0",
-    "solver": "llm_concept_template",
-    "sub_solutions": []
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "P1",

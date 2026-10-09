@@ -6,7 +6,7 @@
     "steps": [],
     "answer": null,
     "answer_latex": "",
-    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
     "solver": "none",
     "sub_solutions": [
       {
@@ -16,7 +16,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       },
@@ -27,7 +27,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       },
@@ -38,7 +38,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       },
@@ -49,7 +49,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       }
@@ -65,8 +65,13 @@
     ],
     "answer": "$\\infty$ 不是数；该极限为发散",
     "answer_latex": "\\infty 不是数；该极限为发散",
-    "solver": "llm_concept_template",
-    "sub_solutions": []
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "Q3",
@@ -78,34 +83,51 @@
     ],
     "answer": "L（由夹逼定理）",
     "answer_latex": "L（由夹逼定理）",
-    "solver": "llm_concept_template",
-    "sub_solutions": []
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "Q4",
     "problem_text": "What do we mean by $\\lim_{x \\to a^-} f(x) = L$? What is meant by $\\lim_{x \\to a^+} f(x) = L$? Graph a function $y = f(x)$ and some point $x = a$ where $\\lim_{x \\to a^-} f(x) \\neq \\lim_{x \\to a^+} f(x)$. Find an algebraic expression for such a function.",
     "solved": true,
     "steps": [
-      "$\\lim_{x \\to a} f^{2} x^{2} = a^{2} f^{2}$"
+      "**左极限** $\\lim_{x\\to a^-} f(x) = L$：$x$ 从小于 $a$ 的方向趋近 $a$ 时 $f(x)\\to L$。",
+      "**右极限** $\\lim_{x\\to a^+} f(x) = L$：$x$ 从大于 $a$ 的方向趋近 $a$ 时 $f(x)\\to L$。",
+      "双侧极限 $\\lim_{x\\to a} f(x)$ 存在当且仅当左、右极限都存在且相等。",
+      "反例：$f(x)=|x|/x$ 在 $a=0$ 处左极限 $=-1$，右极限 $=1$，不相等。"
     ],
-    "answer": "a**2*f**2",
-    "answer_latex": "a^{2} f^{2}",
-    "solver": "sympy_limit",
-    "sub_solutions": []
+    "answer": "左/右极限定义；双侧存在 ⟺ 左=右",
+    "answer_latex": "左/右极限定义；双侧存在 ⟺ 左=右",
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "P1",
     "problem_text": "(a) Is the limit of a sum always the sum of the limits? Give an example where $\\lim_{x \\to a}[f(x) + g(x)]$ exists even though neither $\\lim_{x \\to a} f(x)$ nor $\\lim_{x \\to a} g(x)$ exist.",
     "solved": true,
     "steps": [
-      "（无法直接计算：'list' object has no attribute 'has'）",
-      "$\\lim_{x \\to a} f x = a f$",
-      "$\\lim_{x \\to a} g x = a g$"
+      "**不总是**。极限的加法法则要求两个极限都存在。",
+      "反例：$f(x)=1/x$，$g(x)=-1/x$。$\\lim_{x\\to 0}f$ 与 $\\lim_{x\\to 0}g$ 都不存在，但 $\\lim_{x\\to 0}[f+g]=\\lim_{x\\to 0}0=0$。"
     ],
-    "answer": "a*g",
-    "answer_latex": "a g",
-    "solver": "sympy_limit",
-    "sub_solutions": []
+    "answer": "不总是；反例 $1/x + (-1/x)$",
+    "answer_latex": "不总是；反例 1/x + (-1/x)",
+    "solver": "template_fallback",
+    "sub_solutions": [],
+    "llm_meta": {
+      "model": "local_template",
+      "fallback": true,
+      "reason": "Kimi API 不可用或调用失败"
+    }
   },
   {
     "problem_id": "P2",
@@ -139,7 +161,7 @@
     "steps": [],
     "answer": "见子题",
     "answer_latex": "\\text{见子题}",
-    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
     "solver": "none",
     "sub_solutions": [
       {
@@ -199,7 +221,7 @@
     "steps": [],
     "answer": null,
     "answer_latex": "",
-    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
     "solver": "none",
     "sub_solutions": [
       {
@@ -209,7 +231,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       },
@@ -220,7 +242,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       },
@@ -231,7 +253,7 @@
         "steps": [],
         "answer": null,
         "answer_latex": "",
-        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "reason": "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）",
         "solver": "none",
         "sub_solutions": []
       }

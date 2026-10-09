@@ -4,7 +4,8 @@ Stage 3: 自动求解器（国产模型增强版）
 =====================================
 引擎分工:
   - SymPy 引擎: 极限/导数/积分/方程/矩阵/ODE/化简（确定性计算）
-  - LLM 推理增强层 (国产模型): 概念题/证明题/物理文字题（规则模板 + 可插拔 Qwen/Kimi API）
+  - LLM 推理增强层 (国产模型 Kimi/Moonshot): 概念题/证明题/物理文字题
+    真实调用 Kimi API（见 llm_client.py），失败时降级到本地规则模板
 
 新增求解器 (相比 starter kit):
   - solve_matrix: 行列式/逆/特征值/秩/解线性方程组
@@ -16,6 +17,7 @@ Stage 3: 自动求解器（国产模型增强版）
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import traceback
@@ -43,6 +45,20 @@ y_func = Function("y")
 TRANSFORMS = standard_transformations + (
     implicit_multiplication_application, convert_xor,
 )
+
+# ── LLM 推理增强层（国产模型 Kimi 真实接入） ──
+try:
+    import llm_client as _llm
+    LLM_AVAILABLE = _llm.is_available()
+    LLM_MODEL = _llm.get_model()
+except Exception:
+    _llm = None
+    LLM_AVAILABLE = False
+    LLM_MODEL = "unavailable"
+
+# 环境变量开关：LLM_OFF=1 可强制关闭模型调用（用于纯 SymPy 对照实验）
+if os.environ.get("LLM_OFF") == "1":
+    LLM_AVAILABLE = False
 
 
 # ═══════════════════════════════════════════════════════
@@ -189,8 +205,35 @@ def try_parse_limit(latex_str: str):
     return (var, pt, direction, expr)
 
 
+def _has_abstract_function(expr_str: str) -> bool:
+    """判断表达式里是否含未给定具体形式的抽象函数调用（f(x)、g'(x)、f_1(x) 等）。
+
+    注意：必须在 SymPy 解析**之前**对 latex 原文调用本函数。
+    SymPy 会把 `f(x)` 当成 f*x 解析成 `f*x`，解析后再检测必然漏判。
+    """
+    if not expr_str:
+        return False
+    # 去掉 \left \right \, 等排版噪声，避免漏判与误判
+    s = re.sub(r"\\(left|right|big|Big|,|;|!| )", "", expr_str)
+    # f(x) / g(x) / h(x) / f_1(x) / g'(x) / \phi(x) 等函数调用形态
+    if re.search(r"(?<![A-Za-z\\])([fgh])['_]?\s*\(", s):
+        return True
+    if re.search(r"\\(phi|varphi|psi)\s*['_]?\s*\(", s):
+        return True
+    # 形如 \lim ... f 单独出现的抽象函数名（无具体表达式）
+    return bool(re.search(r"(?<![A-Za-z\\])(f|g|h)(?![A-Za-z0-9])", s))
+
+
 def solve_limit(problem: dict) -> dict:
     math_exprs = problem.get("math_expressions", [])
+    # 抽象函数 f(x)/g(x) 未给具体表达式时不能硬算，否则 SymPy 会把 f(x) 当成
+    # f*x 做乘法，产出 a**2*f**2 这类假阳性。整题先扫一遍：只要含抽象函数，
+    # 就整题转交 LLM/概念模板，而不是跳过单个表达式后继续硬算。
+    # 必须在 SymPy 解析前用 latex 原文检测。
+    for e in math_exprs:
+        if _has_abstract_function(e.get("latex", "")):
+            return solve_conceptual(problem)
+
     steps = []
     answers = []
     for e in math_exprs:
@@ -198,10 +241,6 @@ def solve_limit(problem: dict) -> dict:
         if not parsed:
             continue
         var, pt, direction, expr = parsed
-        # 抽象函数 f(x)/g(x) 不能硬算，跳过让概念模板兜底
-        expr_str = str(expr)
-        if any(fn in expr_str for fn in ["f(", "g(", "h(", "f_", "g_"]):
-            continue
         try:
             if direction == "+":
                 val = limit(expr, var, pt, "+")
@@ -215,7 +254,7 @@ def solve_limit(problem: dict) -> dict:
             steps.append(f"（无法直接计算：{escape_text(str(ex)[:80])}）")
     if answers:
         return _ok(problem, steps, answers[-1], solver="sympy_limit")
-    # 抽象函数或概念题：交给概念模板
+    # 无可直接计算的表达式：交给概念模板
     return solve_conceptual(problem)
 
 
@@ -241,18 +280,6 @@ def try_parse_integral(latex_str: str):
     if lower_s is not None and upper_s is not None:
         try:
             bounds = (safe_parse(lower_s), safe_parse(upper_s))
-        except Exception:
-            pass
-    return (integrand, var, bounds)
-    try:
-        integrand = safe_parse(integrand_s)
-    except Exception:
-        return None
-    var = Symbol(var_s)
-    bounds = None
-    if lower is not None and upper is not None:
-        try:
-            bounds = (safe_parse(lower), safe_parse(upper))
         except Exception:
             pass
     return (integrand, var, bounds)
@@ -751,14 +778,42 @@ CONCEPT_TEMPLATES = [
 
 
 def solve_conceptual(problem: dict) -> dict:
+    """概念题/证明题求解。
+
+    优先级：Kimi 真实推理 > 本地规则模板 > 标记未解。
+    """
+    # 先尝试真实调用国产模型 Kimi
+    if LLM_AVAILABLE and _llm is not None:
+        try:
+            r = _llm.call_llm(problem["text"], max_tokens=2000)
+            if r.get("ok") and r.get("content"):
+                content = r["content"]
+                steps = _llm.extract_steps(content)
+                ans = _llm.extract_answer(content) or "见解答"
+                res = _ok(problem, steps, ans, solver=f"llm_kimi:{LLM_MODEL}")
+                res["llm_meta"] = {
+                    "model": LLM_MODEL,
+                    "elapsed_s": r.get("elapsed"),
+                    "usage": r.get("usage"),
+                    "response_id": r.get("response_id"),
+                }
+                return res
+        except Exception:
+            pass  # 任何异常都安全降级到模板
+
+    # 降级：本地规则模板
     text = problem["text"].lower()
     for matcher, steps, ans in CONCEPT_TEMPLATES:
         try:
             if matcher(text):
-                return _ok(problem, steps, ans, solver="llm_concept_template")
+                res = _ok(problem, steps, ans, solver="template_fallback")
+                res["llm_meta"] = {"model": "local_template",
+                                   "fallback": True,
+                                   "reason": "Kimi API 不可用或调用失败"}
+                return res
         except Exception:
             continue
-    return _fail(problem, "概念题需要 LLM 推理（可接入 Qwen/Kimi API）")
+    return _fail(problem, "概念题需要 LLM 推理（Kimi API 不可用且无匹配模板）")
 
 
 def escape_text(s: str) -> str:

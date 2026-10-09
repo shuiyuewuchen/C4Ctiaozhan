@@ -58,13 +58,13 @@ python3 scripts/pipeline.py <输入.md> <输出目录> --compile \
 
 | 测试 | 本版 | Claude 基线 |
 |------|------|------------|
-| Berkeley Worksheet 3 | 8/8 | 8/8 |
-| Berkeley Worksheet 4 | 7/10 | 9/10 |
-| **核心域合计（JSON 计数）** | **15/18 = 83.3%** | **17/18 = 94.4%** |
-| 核心域合计（剔除假阳性后） | **13/18 = 72.2%** | 17/18 |
-| 自造综合作业（10 题） | 10/10 | starter 域外 2/5 |
+| Berkeley Worksheet 3（切线 + ε-δ） | **8/8** | 8/8 |
+| Berkeley Worksheet 4（极限） | 7/10 | 9/10 |
+| **核心域合计** | **15/18 = 83.3%** | **17/18 = 94.4%** |
+| 自造综合作业（10 题，非极限域） | **10/10** | starter 域外 2/5 |
 
-> **口径说明**：15/18 是 `3_solutions.json` 里 `solved=True` 的计数；其中 Q4/P1 是 SymPy 把抽象函数 f(x) 当乘法算错的假阳性，剔除后真实可信成绩 13/18。
-> 详细逐题对照、假阳性披露、根因分析见 `Doubao_C4C_验证报告.md`。
+> **口径说明（零假阳性）**：15/18 是 `3_solutions.json` 里 `solved=True` 的计数，且**已无假阳性**——此前 Q4/P1 由 SymPy 把抽象函数 f(x)/g(x) 当乘法算错（产出 `a²f²`、`a g`），现已改为在求解前检测抽象函数并路由到概念求解路径，重跑后由 `template_fallback` 给出语义正确答案。
+> Worksheet 4 未解的 3 题（Q1/P3/AP3）**全部是 LLM 调用返回 HTTP 429（Kimi 服务端过载）所致**，非代码缺陷；失败记录原样保留在 `homework_solver/logs/llm_calls.jsonl`。
+> 详细逐题对照、调用日志与根因分析见 `Doubao_C4C_验证报告.md`。
 >
 > **关于 output 目录**：`test_homework/output/` 和 `berkeley_baseline/*/output/` 是运行 pipeline 生成的产物（含 JSON/tex/pdf），不建议入库；评审时可直接用仓库里已编译好的 PDF，或按上文"一键运行"重新生成。
