@@ -117,7 +117,7 @@
 
 ### 硬伤 2：README 目录结构与实物不符
 
-- **修复**：重写 README，对齐实际目录树（berkeley_baseline/、test_homework/、homework_solver/），删除不存在的 `test_homework/output/` 承诺。
+- **修复**：重写 README，对齐实际目录树（berkeley_baseline/、test_homework/、homework-solver/），删除不存在的 `test_homework/output/` 承诺。
 
 ### 硬伤 3：成绩对比口径不可比
 

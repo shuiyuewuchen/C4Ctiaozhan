@@ -11,8 +11,8 @@
 ## 二、安装
 
 ```bash
-# 1. 解压交付目录后进入 homework_solver/
-cd homework_solver
+# 1. 解压交付目录后进入 homework-solver/
+cd homework-solver
 
 # 2. 装 Python 依赖
 pip install sympy pdfplumber python-docx matplotlib numpy

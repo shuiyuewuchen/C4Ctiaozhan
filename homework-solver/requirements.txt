@@ -1,4 +1,4 @@
-# homework_solver 依赖
+# homework-solver 依赖
 # 安装: pip install -r requirements.txt
 
 sympy>=1.12

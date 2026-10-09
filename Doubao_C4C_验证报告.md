@@ -85,7 +85,7 @@
 3. **Q4/P1 假阳性（已修复）**：SymPy 把抽象函数符号 `f`/`g` 当变量乘法。已在求解前检测抽象函数并路由到概念求解路径，重跑后假阳性归零。
 4. **AP3（几何题）**：几何推理题，LLM 429 过载未取得结果；Claude 基线同样未解出。
 
-> **API 可用性说明**：本次运行的 LLM 调用中，大量请求返回 HTTP 429 `engine_overloaded_error`。全部请求与响应（含失败原因）原样记录于 `homework_solver/logs/llm_calls.jsonl`，可逐条复核。
+> **API 可用性说明**：本次运行的 LLM 调用中，大量请求返回 HTTP 429 `engine_overloaded_error`。全部请求与响应（含失败原因）原样记录于 `homework-solver/logs/llm_calls.jsonl`，可逐条复核。
 
 ## 六、已知局限（诚实披露）
 

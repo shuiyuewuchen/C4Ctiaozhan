@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
-homework_solver/output/*
+homework-solver/output/*
 test_homework/output/*
 .env

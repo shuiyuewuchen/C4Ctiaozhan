@@ -1,4 +1,4 @@
-# homework_solver
+# homework-solver
 
 > 国产模型（豆包）端到端作业自动求解与排版流水线。
 > 输入一份作业（Markdown / PDF / DOCX），输出解答 PDF。
@@ -20,7 +20,7 @@ ingest → parse_problems → solve → render_latex → compile
 ## 一键运行
 
 ```bash
-cd homework_solver
+cd homework-solver
 python3 scripts/pipeline.py <输入.md> <输出目录> --compile \
     --course "课程名" --student "学生名" --title "作业标题"
 ```
