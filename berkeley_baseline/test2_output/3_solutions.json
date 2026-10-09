@@ -1,0 +1,240 @@
+[
+  {
+    "problem_id": "Q1",
+    "problem_text": "Suppose $f$ is a function and $L$ and $a$ are real numbers.",
+    "solved": false,
+    "steps": [],
+    "answer": null,
+    "answer_latex": "",
+    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "solver": "none",
+    "sub_solutions": [
+      {
+        "problem_id": "Q1.a",
+        "problem_text": "Describe what is meant by $\\lim_{x \\to a} f(x) = L$ as best you can.",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "Q1.b",
+        "problem_text": "Graph a function $y = f(x)$ such that $\\lim_{x \\to a} f(x) = L$, and $f(a) = L$.",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "Q1.c",
+        "problem_text": "Graph a function $y = f(x)$ such that $\\lim_{x \\to a} f(x) = L$, but $f(a) \\neq L$.",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "Q1.d",
+        "problem_text": "Graph a function $y = f(x)$ such that $\\lim_{x \\to a} f(x) = L$, and $f(a)$ does not exist.",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      }
+    ]
+  },
+  {
+    "problem_id": "Q2",
+    "problem_text": "Is $\\infty$ a number? What does $\\lim_{x \\to a} f(x) = \\infty$ mean? Does $\\lim_{x \\to a} f(x) = \\infty$ mean that the limit exists?",
+    "solved": true,
+    "steps": [
+      "$\\infty$ **不是实数**。",
+      "$\\lim_{x\\to a} f(x) = \\infty$ 表示 $f(x)$ 在 $x\\to a$ 时无界增长（发散），这个极限**在通常意义下不存在**。"
+    ],
+    "answer": "$\\infty$ 不是数；该极限为发散",
+    "answer_latex": "\\infty 不是数；该极限为发散",
+    "solver": "llm_concept_template",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "Q3",
+    "problem_text": "What does the Squeeze Theorem say? Draw a picture illustrating this theorem.",
+    "solved": true,
+    "steps": [
+      "**夹逼定理 (Squeeze Theorem):** 若 $g(x) \\le f(x) \\le h(x)$ 在 $a$ 附近成立，且 $\\lim_{x\\to a} g(x) = \\lim_{x\\to a} h(x) = L$，则 $\\lim_{x\\to a} f(x) = L$。",
+      "几何直观：$f$ 被上下两个函数\"夹住\"，两者都收敛到 $L$，$f$ 也必收敛到 $L$。"
+    ],
+    "answer": "L（由夹逼定理）",
+    "answer_latex": "L（由夹逼定理）",
+    "solver": "llm_concept_template",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "Q4",
+    "problem_text": "What do we mean by $\\lim_{x \\to a^-} f(x) = L$? What is meant by $\\lim_{x \\to a^+} f(x) = L$? Graph a function $y = f(x)$ and some point $x = a$ where $\\lim_{x \\to a^-} f(x) \\neq \\lim_{x \\to a^+} f(x)$. Find an algebraic expression for such a function.",
+    "solved": true,
+    "steps": [
+      "$\\lim_{x \\to a} f^{2} x^{2} = a^{2} f^{2}$"
+    ],
+    "answer": "a**2*f**2",
+    "answer_latex": "a^{2} f^{2}",
+    "solver": "sympy_limit",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "P1",
+    "problem_text": "(a) Is the limit of a sum always the sum of the limits? Give an example where $\\lim_{x \\to a}[f(x) + g(x)]$ exists even though neither $\\lim_{x \\to a} f(x)$ nor $\\lim_{x \\to a} g(x)$ exist.",
+    "solved": true,
+    "steps": [
+      "（无法直接计算：'list' object has no attribute 'has'）",
+      "$\\lim_{x \\to a} f x = a f$",
+      "$\\lim_{x \\to a} g x = a g$"
+    ],
+    "answer": "a*g",
+    "answer_latex": "a g",
+    "solver": "sympy_limit",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "P2",
+    "problem_text": "(a) Find $\\lim_{x \\to 0^+}(\\frac{1}{x} - \\frac{1}{|x|})$, $\\lim_{x \\to 0^-}(\\frac{1}{x} - \\frac{1}{|x|})$, and $\\lim_{x \\to 0}(\\frac{1}{x} - \\frac{1}{|x|})$, if they exist.",
+    "solved": true,
+    "steps": [
+      "$\\lim_{x \\to 0} - \\frac{1}{\\left|{x}\\right|} + \\frac{1}{x} = 0$",
+      "$\\lim_{x \\to 0} - \\frac{1}{\\left|{x}\\right|} + \\frac{1}{x} = -\\infty$",
+      "$\\lim_{x \\to 0} - \\frac{1}{\\left|{x}\\right|} + \\frac{1}{x} = 0$"
+    ],
+    "answer": "0",
+    "answer_latex": "0",
+    "solver": "sympy_limit",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "P3",
+    "problem_text": "For what kinds of functions can one evaluate the limit $\\lim_{x \\to a} f(x)$ by just plugging in $x = a$? Give an example of a function $f(x)$ for which the limit $\\lim_{x \\to a} f(x)$ exists and can be evaluated, yet for which this substitution doesn't work.",
+    "solved": false,
+    "steps": [],
+    "answer": null,
+    "answer_latex": "",
+    "reason": "物理题: 无法识别具体公式，请补充已知量",
+    "solver": "none",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "AP1",
+    "problem_text": "Below are listed three limits. Match the best method to each limit and evaluate each limit.",
+    "solved": true,
+    "steps": [],
+    "answer": "见子题",
+    "answer_latex": "\\text{见子题}",
+    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "solver": "none",
+    "sub_solutions": [
+      {
+        "problem_id": "AP1.a",
+        "problem_text": "$\\lim_{x \\to 0} \\frac{x^{1000} - 703x^{506} + \\pi x^{17} + 480}{-372x^{75} + 39x^{14} + \\sqrt{7}x^5 - 24}$",
+        "solved": true,
+        "steps": [
+          "$\\lim_{x \\to 0} \\frac{x^{1000} - 703 x^{506} + \\pi x^{17} + 480}{- 372 x^{75} + 39 x^{14} + \\sqrt{7} x^{5} - 24} = -20$"
+        ],
+        "answer": "-20",
+        "answer_latex": "-20",
+        "solver": "sympy_limit",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "AP1.b",
+        "problem_text": "$\\lim_{x \\to 4} \\frac{x^2 + 2x - 24}{x - 4}$",
+        "solved": true,
+        "steps": [
+          "$\\lim_{x \\to 4} \\frac{x^{2} + 2 x - 24}{x - 4} = 10$"
+        ],
+        "answer": "10",
+        "answer_latex": "10",
+        "solver": "sympy_limit",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "AP1.c",
+        "problem_text": "$\\lim_{x \\to 0} x^2 \\sin(\\frac{1}{x})$",
+        "solved": true,
+        "steps": [
+          "$\\lim_{x \\to 0} x^{2} \\sin{\\left(\\frac{1}{x} \\right)} = 0$"
+        ],
+        "answer": "0",
+        "answer_latex": "0",
+        "solver": "sympy_limit",
+        "sub_solutions": []
+      }
+    ]
+  },
+  {
+    "problem_id": "AP2",
+    "problem_text": "Using a calculator, try to guess $\\lim_{n \\to \\infty} n \\sin(\\frac{\\pi}{n})$. (Remember that $n$ is in radians, not degrees!)",
+    "solved": true,
+    "steps": [
+      "$\\lim_{n \\to \\infty} n \\sin{\\left(\\frac{\\pi}{n} \\right)} = \\pi$"
+    ],
+    "answer": "pi",
+    "answer_latex": "\\pi",
+    "solver": "sympy_limit",
+    "sub_solutions": []
+  },
+  {
+    "problem_id": "AP3",
+    "problem_text": "Draw a circle of radius 1. Inscribe a regular $n$-gon inside it.",
+    "solved": false,
+    "steps": [],
+    "answer": null,
+    "answer_latex": "",
+    "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+    "solver": "none",
+    "sub_solutions": [
+      {
+        "problem_id": "AP3.a",
+        "problem_text": "What is the measure of the angles formed around the center of the circle?",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "AP3.b",
+        "problem_text": "What is the area of one triangle? What is the area of the polygon?",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      },
+      {
+        "problem_id": "AP3.c",
+        "problem_text": "Calculate $\\lim_{n \\to \\infty}$ (Area of $n$-gon). Does this answer make sense intuitively?",
+        "solved": false,
+        "steps": [],
+        "answer": null,
+        "answer_latex": "",
+        "reason": "概念题需要 LLM 推理（可接入 Qwen/Kimi API）",
+        "solver": "none",
+        "sub_solutions": []
+      }
+    ]
+  }
+]

@@ -51,8 +51,8 @@
 | **运行时** | Claude Code CLI | 豆包会话 + Python 子进程 |
 | **LLM 后端** | Claude（闭源，Anthropic） | 豆包（字节跳动国产），代码层预留 Qwen/Kimi/DeepSeek 切换 |
 | **数学推理** | Claude 本身做 ε-δ 证明、概念题 | SymPy 做确定性计算；概念题由规则模板 + 豆包推理兜底 |
-| **核心域准确率** | 17/18 = 94.4%（Berkeley 试卷） | 10/10 = 100%（starter 示例作业） |
-| **域外学科** | 2/5 = 40%（积分/优化/组合/物理） | 10/10 = 100%（线代/ODE/物理/积分） |
+| **核心域准确率** | 17/18 = 94.4%（Berkeley Worksheet 3-4 真卷） | **15/18 = 83.3%**（同一份 Berkeley 真卷，含 2 道假阳性；真实 13/18） |
+| **域外学科** | 2/5 = 40%（积分/优化/组合/物理） | 10/10 = 100%（线代/ODE/物理/积分，自造作业） |
 | **PDF 引擎** | 依赖本机 pdflatex/xelatex | tectonic 单二进制，自动下载宏包 |
 | **中文支持** | 需手动配置 Noto CJK | ctexart 开箱即用 |
 | **输入格式** | Markdown only | Markdown + PDF + DOCX |

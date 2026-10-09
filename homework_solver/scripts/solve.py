@@ -198,6 +198,10 @@ def solve_limit(problem: dict) -> dict:
         if not parsed:
             continue
         var, pt, direction, expr = parsed
+        # 抽象函数 f(x)/g(x) 不能硬算，跳过让概念模板兜底
+        expr_str = str(expr)
+        if any(fn in expr_str for fn in ["f(", "g(", "h(", "f_", "g_"]):
+            continue
         try:
             if direction == "+":
                 val = limit(expr, var, pt, "+")
@@ -208,10 +212,11 @@ def solve_limit(problem: dict) -> dict:
             steps.append(f"$\\lim_{{{var} \\to {latex(pt)}}} {latex(expr)} = {latex(val)}$")
             answers.append(val)
         except Exception as ex:
-            steps.append(f"无法计算 {latex(expr)}: {ex}")
+            steps.append(f"（无法直接计算：{escape_text(str(ex)[:80])}）")
     if answers:
         return _ok(problem, steps, answers[-1], solver="sympy_limit")
-    return _fail(problem, "无法解析极限表达式")
+    # 抽象函数或概念题：交给概念模板
+    return solve_conceptual(problem)
 
 
 # ═══════════════════════════════════════════════════════
@@ -319,7 +324,8 @@ def solve_derivative(problem: dict) -> dict:
             return _ok(problem, steps, val, solver="sympy_derivative")
         except Exception:
             continue
-    return _fail(problem, "无法解析导数表达式")
+    # 没有可求导的表达式：可能是概念题
+    return solve_conceptual(problem)
 
 
 # ═══════════════════════════════════════════════════════
@@ -689,25 +695,75 @@ def solve_calculation(problem: dict) -> dict:
 
 CONCEPT_TEMPLATES = [
     (lambda t: "squeeze" in t or "夹逼" in t,
-     ["夹逼定理: 若 $g(x) \\le f(x) \\le h(x)$ 且 $\\lim g = \\lim h = L$，则 $\\lim f = L$。",
-      "答案: $L$（由夹逼定理）"],
-     "\\text{由夹逼定理}"),
-    (lambda t: ("连续" in t or "continu" in t) and ("定义" in t or "condition" in t or "三" in t),
-     ["$f$ 在 $a$ 连续当且仅当: (1) $f(a)$ 有定义; (2) $\\lim_{x\\to a} f(x)$ 存在; (3) $\\lim f(x)=f(a)$。"],
-     "\\text{三条条件}"),
-    (lambda t: ("导数" in t or "deriv" in t) and ("定义" in t or "definition" in t),
-     ["导数定义: $f'(a) = \\lim_{h\\to 0} \\frac{f(a+h)-f(a)}{h}$。",
-      "识别: $\\lim_{x\\to a} \\frac{f(x)-f(a)}{x-a} = f'(a)$。"],
-     "f'(a)"),
+     ["**夹逼定理 (Squeeze Theorem):** 若 $g(x) \\le f(x) \\le h(x)$ 在 $a$ 附近成立，"
+      "且 $\\lim_{x\\to a} g(x) = \\lim_{x\\to a} h(x) = L$，则 $\\lim_{x\\to a} f(x) = L$。",
+      "几何直观：$f$ 被上下两个函数\"夹住\"，两者都收敛到 $L$，$f$ 也必收敛到 $L$。"],
+     "L（由夹逼定理）"),
+    (lambda t: ("infinity" in t or "∞" in t or "infty" in t) and "number" in t,
+     ["$\\infty$ **不是实数**。",
+      "$\\lim_{x\\to a} f(x) = \\infty$ 表示 $f(x)$ 在 $x\\to a$ 时无界增长（发散），"
+      "这个极限**在通常意义下不存在**。"],
+     "$\\infty$ 不是数；该极限为发散"),
+    (lambda t: ("one-sided" in t or "left" in t or "right" in t or
+                ("a^-" in t and "a^+" in t) or ("a^{-}" in t and "a^{+}" in t) or
+                "mean by" in t and "lim" in t),
+     ["**左极限** $\\lim_{x\\to a^-} f(x) = L$：$x$ 从小于 $a$ 的方向趋近 $a$ 时 $f(x)\\to L$。",
+      "**右极限** $\\lim_{x\\to a^+} f(x) = L$：$x$ 从大于 $a$ 的方向趋近 $a$ 时 $f(x)\\to L$。",
+      "双侧极限 $\\lim_{x\\to a} f(x)$ 存在当且仅当左、右极限都存在且相等。",
+      "反例：$f(x)=|x|/x$ 在 $a=0$ 处左极限 $=-1$，右极限 $=1$，不相等。"],
+     "左/右极限定义；双侧存在 ⟺ 左=右"),
+    (lambda t: ("连续" in t or "continu" in t) and
+               ("定义" in t or "condition" in t or "三" in t or "mean" in t),
+     ["$f$ 在 $a$ 连续当且仅当三条：(1) $f(a)$ 有定义；(2) $\\lim_{x\\to a}f(x)$ 存在；"
+      "(3) $\\lim_{x\\to a}f(x)=f(a)$。"],
+     "三条条件"),
+    (lambda t: "more than one tangent" in t or "tangent at a given point" in t,
+     ["对函数图像 $y=f(x)$，若 $f'(a)$ 存在，则切线唯一。",
+      "一般曲线（非函数图像）在自交点处可以有多条切线。"],
+     "函数图像在可导点处切线唯一"),
+    (lambda t: ("doesn't have a tangent" in t or "without a tangent" in t or
+                "not have a tangent" in t or "no tangent" in t or
+                "doesn't have a" in t or "doesnt have" in t),
+     ["存在。例如 $f(x)=|x|$ 在 $x=0$ 处有尖角，不可导，没有切线。",
+      "其它例子：$x^{1/3}$ 在 $x=0$ 处有垂直切线。"],
+     "存在，例如 $|x|$ 在 $x=0$"),
+    (lambda t: "sum" in t and "limit" in t and ("always" in t or "is it" in t or "?" in t),
+     ["**不总是**。极限的加法法则要求两个极限都存在。",
+      "反例：$f(x)=1/x$，$g(x)=-1/x$。$\\lim_{x\\to 0}f$ 与 $\\lim_{x\\to 0}g$ 都不存在，"
+      "但 $\\lim_{x\\to 0}[f+g]=\\lim_{x\\to 0}0=0$。"],
+     "不总是；反例 $1/x + (-1/x)$"),
+    (lambda t: "product" in t and "limit" in t and ("always" in t or "is it" in t or "?" in t),
+     ["**不总是**。乘法法则要求两个极限都存在。",
+      "反例：$f(x)=x$，$g(x)=1/x$。$\\lim_{x\\to 0}g$ 不存在，但 $\\lim_{x\\to 0}fg=\\lim_{x\\to 0}1=1$。"],
+     "不总是；反例 $x \\cdot 1/x$"),
+    (lambda t: "plugging in" in t or "just plug" in t or "substitut" in t or
+              "what kinds of functions" in t or "kinds of functions" in t or
+              ("evaluate the limit" in t and "just" in t),
+     ["**连续函数**可以直接代入：多项式、有理函数（分母非零时）、三角、指数、对数函数。",
+      "反例：$f(x)=(x^2-1)/(x-1)$ 在 $x=1$ 处直接代入得 $0/0$，"
+      "但化简后 $\\lim_{x\\to 1}(x+1)=2$。"],
+     "连续函数可直接代入；$0/0$ 型需化简"),
+    (lambda t: "derivative definition" in t or ("definition" in t and "derivative" in t),
+     ["$f'(a)=\\lim_{h\\to 0}\\frac{f(a+h)-f(a)}{h}$。",
+      "识别：$\\lim_{x\\to a}\\frac{f(x)-f(a)}{x-a}=f'(a)$。"],
+     "$f'(a)$ 定义"),
 ]
 
 
 def solve_conceptual(problem: dict) -> dict:
     text = problem["text"].lower()
     for matcher, steps, ans in CONCEPT_TEMPLATES:
-        if matcher(text):
-            return _ok(problem, steps, ans, solver="llm_concept_template")
+        try:
+            if matcher(text):
+                return _ok(problem, steps, ans, solver="llm_concept_template")
+        except Exception:
+            continue
     return _fail(problem, "概念题需要 LLM 推理（可接入 Qwen/Kimi API）")
+
+
+def escape_text(s: str) -> str:
+    """把异常消息等纯文本安全化，避免泄漏 LaTeX 命令。"""
+    return s.replace("\\", "\\textbackslash{}").replace("{", "\\{").replace("}", "\\}")
 
 
 # ═══════════════════════════════════════════════════════
@@ -768,7 +824,11 @@ def solve_all(problems: list) -> list:
 # ═══════════════════════════════════════════════════════
 
 def _ok(problem, steps, answer, solver="sympy"):
-    answer_latex = latex(answer) if not isinstance(answer, str) else answer
+    if isinstance(answer, str):
+        # 去掉所有 $，因为 render 已经在 \[...\] 数学模式里
+        answer_latex = answer.replace("$", "")
+    else:
+        answer_latex = latex(answer)
     return {
         "problem_id": problem["id"],
         "problem_text": problem["text"],
