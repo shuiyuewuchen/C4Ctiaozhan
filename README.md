@@ -60,7 +60,11 @@ python3 scripts/pipeline.py <输入.md> <输出目录> --compile \
 |------|------|------------|
 | Berkeley Worksheet 3 | 8/8 | 8/8 |
 | Berkeley Worksheet 4 | 7/10 | 9/10 |
-| **核心域合计** | **15/18 = 83.3%** | **17/18 = 94.4%** |
+| **核心域合计（JSON 计数）** | **15/18 = 83.3%** | **17/18 = 94.4%** |
+| 核心域合计（剔除假阳性后） | **13/18 = 72.2%** | 17/18 |
 | 自造综合作业（10 题） | 10/10 | starter 域外 2/5 |
 
+> **口径说明**：15/18 是 `3_solutions.json` 里 `solved=True` 的计数；其中 Q4/P1 是 SymPy 把抽象函数 f(x) 当乘法算错的假阳性，剔除后真实可信成绩 13/18。
 > 详细逐题对照、假阳性披露、根因分析见 `Doubao_C4C_验证报告.md`。
+>
+> **关于 output 目录**：`test_homework/output/` 和 `berkeley_baseline/*/output/` 是运行 pipeline 生成的产物（含 JSON/tex/pdf），不建议入库；评审时可直接用仓库里已编译好的 PDF，或按上文"一键运行"重新生成。

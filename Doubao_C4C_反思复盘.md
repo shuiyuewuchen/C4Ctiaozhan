@@ -12,7 +12,7 @@
 | 1 | `baseline_limits/` 目录名不副实：封面印着 "Berkeley Worksheet 3-4 Baseline"，实际装的是 starter 自带的 `sample_homework.md`（英文示例），数据造假嫌疑 | **致命** | 删除该目录，用 starter kit `test_cases/` 里**真实的 Berkeley Worksheet 3-4** 重跑 |
 | 2 | README 第 37-39 行承诺 `test_homework/output/` 但被 .gitignore 忽略，远程不存在 | 中 | README 对齐实物目录树 |
 | 3 | 成绩对比表把"自造 10/10"和"Claude 17/18"并列，两张不同卷子，口径不可比 | 中 | 用同一份 Berkeley 试卷重跑，拿到 15/18 vs 17/18 的直接对比 |
-| 4 | PDF 封面副标题乱码（㋜㺲㾗㮟ⰶ▖） | 低 | 重新编译，当前版本目检干净；乱码是 tectonic 字体 fallback 引入 |
+| 4 | PDF 封面副标题乱码（㋜㺲㾗㮟ⰶ▖） | 中 | 用 pdfplumber 提取确认为 `(cid:13020)(cid:16050)...` 6 个乱码，根因是 tectonic 对中文 `\bfseries` 粗体 fallback 到坏字体；修复：在 tex 头部加 `\usepackage{fontspec}` + `\setCJKmainfont{Songti SC}` 显式指定，重编译后乱码消失 |
 
 ### 1.1 为什么会犯硬伤 1（最该反思的）
 
@@ -45,7 +45,7 @@
 2. **抽象函数防护**：在 `solve_limit` 里检测表达式含 `f(`/`g(`/`h(` 时跳过 SymPy 硬算，路由到概念模板。
 3. **LaTeX 安全**：异常消息用 `escape_text()` 转义，不再让 `\left[` 等命令泄漏到 tex 源码；`_ok()` 把 answer 字符串里所有 `$` 去掉（避免双重数学模式冲突）。
 4. **概念模板从 3 个扩到 10 个**：补了 ∞不是数、单侧极限、极限加法/乘法反例、代入法、切线唯一性等 Berkeley 真题考点。
-5. **目检 PDF**：重跑后用 Read 工具渲染 PDF 第 1 页，确认封面干净、答案正确。
+5. **目检 PDF 教训**：第一次重跑后用 Read 工具渲染 PDF 截图，视觉上看着"干净"，但用 pdfplumber 提取文本发现封面是 `(cid:13020)(cid:16050)...` 6 个乱码——视觉渲染和文本提取结果不一致。最终用 `\setCJKmainfont{Songti SC}` 显式指定字体才修好。
 
 ## 四、修复轮次踩的坑
 
@@ -54,6 +54,8 @@
 | CONCEPT_TEMPLATES 语法错 | `SyntaxError: closing parenthesis ')' does not match '['` | lambda 元组里多写了 `)` 把元组提前闭合 |
 | boxed 双重数学模式 | `Missing $ inserted` | answer 字符串自带 `$`，render 又包了 `\[...\]` |
 | 抽象函数硬算 | `'list' object has no attribute 'has'` | SymPy 把 f(x) 当 f*x，parse 后类型错 |
+| 中文粗体乱码 | 封面副标题 `(cid:13020)...` | tectonic 对 `\bfseries` 中文 fallback 到坏字体；`\heiti` 也不行；必须 fontspec 显式 `\setCJKmainfont{Songti SC}` |
+| 视觉目检漏乱码 | Read 工具渲染的 PDF 截图看着正常 | 渲染层把 cid 映射成了某个 fallback 字形，但文本提取仍是 cid；要同时用 pdfplumber 提取文本验证 |
 
 ## 五、与 Claude 基线的真实差距（不粉饰）
 

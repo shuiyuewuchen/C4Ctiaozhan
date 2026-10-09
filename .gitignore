@@ -3,3 +3,4 @@ __pycache__/
 .DS_Store
 homework_solver/output/*
 test_homework/output/*
+.env

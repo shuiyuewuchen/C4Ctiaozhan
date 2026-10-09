@@ -32,6 +32,10 @@ def _build_preamble(course: str, student: str, title: str, date_str: str) -> str
 \\usepackage{{enumitem}}
 \\usepackage{{xcolor}}
 \\usepackage{{hyperref}}
+\\usepackage{{fontspec}}
+\\setCJKmainfont{{Songti SC}}
+\\setCJKsansfont{{PingFang SC}}
+\\setCJKmonofont{{Songti SC}}
 
 \\geometry{{margin=2.2cm}}
 \\pagestyle{{fancy}}
@@ -48,7 +52,7 @@ def _build_preamble(course: str, student: str, title: str, date_str: str) -> str
 \\begin{{document}}
 
 \\begin{{center}}
-  {{\\LARGE\\bfseries {escape(title)}}}\\\\[0.4em]
+  {{\\LARGE {escape(title)}}}\\\\[0.4em]
   {{\\large {escape(course)}}}\\\\[0.25em]
   {escape(student)} \\quad | \\quad {escape(date_str)}
 \\end{{center}}
